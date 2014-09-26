@@ -7,7 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "BMapKit.h"
+#import "Constant.h"
+#import <AFNetworking/AFHTTPRequestOperationManager.h>
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController<BMKMapViewDelegate,BMKLocationServiceDelegate>
+
+@property BMKLocationService *locService;
+@property BMKMapView *mapView;
 
 @end
