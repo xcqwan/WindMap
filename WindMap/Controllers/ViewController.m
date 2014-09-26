@@ -23,8 +23,7 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
-    
-    
+    [self initUD];
     self.mapView = [[BMKMapView alloc] initWithFrame:self.view.frame];
     self.view = self.mapView;
     
@@ -55,7 +54,6 @@
     [self.userDefaults setObject:[NSNumber numberWithDouble:self.lastUploadLocation.latitude] forKey:UD_LAST_LATITUDE];
 }
 
-
 - (void)create:(CLLocationCoordinate2D)coordinate
 {
     double latitude = coordinate.latitude;
@@ -72,7 +70,6 @@
     AFHTTPRequestOperationManager * manager = [[AFHTTPRequestOperationManager alloc]init];
     
     [manager POST:URL_POI_CREATE parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSLog(@"Success: %@", responseObject);
         self.myPID = [responseObject valueForKey:@"id"];
         self.lastUploadLocation = coordinate;
         
@@ -82,6 +79,34 @@
         NSLog(@"Error: %@", operation.response);
         self.myPID = nil;
     }];
+}
+
+- (void)update:(CLLocationCoordinate2D)coordinate
+{
+    double latitude = coordinate.latitude;
+    double longitude = coordinate.longitude;
+    
+    NSMutableDictionary *params = [[NSMutableDictionary alloc] init];
+    [params setObject:POI_SERVICE_TOKEN forKey:@"ak"];
+    [params setObject:POI_TB_ID forKey:@"geotable_id"];
+    [params setObject:@3 forKey:@"coord_type"];
+    [params setObject:[NSNumber numberWithUnsignedLongLong:[self.myPID longLongValue]] forKey:@"id"];
+    [params setObject:[NSNumber numberWithDouble:longitude] forKey:@"longitude"];
+    [params setObject:[NSNumber numberWithDouble:latitude] forKey:@"latitude"];
+    [params setObject:@"谢谢修改" forKey:@"title"];
+    
+    NSLog(@"Params: %@", params);
+    AFHTTPRequestOperationManager * manager = [[AFHTTPRequestOperationManager alloc]init];
+    [manager POST:URL_POI_UPDATE parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"Success: %@", responseObject);
+        self.lastUploadLocation = coordinate;
+        
+        [self saveUD];
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error: %@", operation.response);
+    }];
+    
+    [self search:coordinate];
 }
 
 - (void)search:(CLLocationCoordinate2D)coordinate
@@ -99,7 +124,7 @@
     AFHTTPRequestOperationManager * manager = [[AFHTTPRequestOperationManager alloc]init];
     manager.responseSerializer = [AFJSONResponseSerializer serializer];
     manager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"application/json"];
-    [manager GET:URL_POI_nearby parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [manager GET:URL_POI_NEARBY parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
         for (NSDictionary *user in [responseObject valueForKey:@"contents"]) {
             NSArray *location = [user valueForKey:@"location"];
             
@@ -139,7 +164,6 @@
 -(void)didUpdateUserHeading:(BMKUserLocation *)userLocation
 {
     [self.mapView updateLocationData:userLocation];
-    NSLog(@"Heading is %@", userLocation.heading);
 }
 
 /**
@@ -149,17 +173,20 @@
 -(void)didUpdateUserLocation:(BMKUserLocation *)userLocation
 {
     [self.mapView updateLocationData:userLocation];
+    
+    CLLocation *location = userLocation.location;
+    CLLocationCoordinate2D coordinate = userLocation.location.coordinate;
     if (self.myPID == nil) {
         //注册本设备, 并上传位置
-        [self create:userLocation.location.coordinate];
+        [self create:coordinate];
         self.myPID = @"";
     } else {
-        if (self.lastUploadLocation.latitude == 0) {
+        CLLocation *lastLocation = [[CLLocation alloc] initWithLatitude:self.lastUploadLocation.latitude longitude:self.lastUploadLocation.longitude];
+        CLLocationDistance distance = [lastLocation distanceFromLocation:location];
+        if (distance > 100) {
             //更新本设备位置
-        } else {
-            //判断现处位置与最后一次上传的位置的距离, 超过一定范围则上传
+            [self update:coordinate];
         }
-//        [self search:userLocation.location.coordinate];
     }
 }
 

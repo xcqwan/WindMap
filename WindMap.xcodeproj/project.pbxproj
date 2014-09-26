@@ -385,6 +385,9 @@
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = Xcqwan;
 				TargetAttributes = {
+					E0E0701F19D4079900802888 = {
+						DevelopmentTeam = Z62SGXZ5U6;
+					};
 					E0E0704019D4079900802888 = {
 						TestTargetID = E0E0701F19D4079900802888;
 					};
@@ -598,6 +601,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WindMap/WindMap-Prefix.pch";
 				INFOPLIST_FILE = "WindMap/WindMap-Info.plist";
@@ -606,6 +610,7 @@
 					"$(PROJECT_DIR)/WindMap/BaiduMap",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = "armv7 armv7s";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -616,6 +621,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WindMap/WindMap-Prefix.pch";
 				INFOPLIST_FILE = "WindMap/WindMap-Info.plist";
@@ -624,6 +630,7 @@
 					"$(PROJECT_DIR)/WindMap/BaiduMap",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = "armv7 armv7s";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
